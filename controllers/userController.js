@@ -4,8 +4,15 @@ const bcrypt = require("bcryptjs");
 const { generateJWT } = require('../helpers/jwt');
 
 const getUsers = async (req, res) => {
-  const users = await User.find();
-  return res.json({ users: users });
+  try {
+    const users = await User.find();
+    return res.json({ ok: true, users: users });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: error,
+    });
+  }
 };
 
 const createUser = async (req, res = response) => {
