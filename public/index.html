@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Signin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">
+  </head>
+  <body style="font-family: Roboto, 'Courier New', Courier, monospace;">
+    <h1>Google Signin</h1>
+    <div id="buttonDiv"></div>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+      var url = "http://localhost:3000/api/auth/login/google";
+      function handleCredentialResponse(response) {
+        console.log("Encoded JWT ID token: " + response.credential);
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: response.credential }),
+        })
+          .then((res) => res.json())
+          .then((data) => console.log("Data: ", data))
+          .catch(console.log);
+      }
+      window.onload = function () {
+        google.accounts.id.initialize({
+          client_id:
+            "736819630261-al7km2iv80572im5h5s05cuog6oni41h.apps.googleusercontent.com",
+          callback: handleCredentialResponse,
+        });
+        google.accounts.id.renderButton(
+          document.getElementById("buttonDiv"),
+          { theme: "outline", size: "large" } // customization attributes
+        );
+        google.accounts.id.prompt(); // also display the One Tap dialog
+      };
+    </script>
+  </body>
+</html>

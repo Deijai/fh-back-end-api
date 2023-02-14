@@ -24,6 +24,8 @@ const app = express();
 // Configurar CORS
 app.use( cors() );
 
+app.use(express.static('public'))
+
 // Leitura e parser do body
 app.use( express.json() );
 
