@@ -50,14 +50,38 @@ const createDoctor = async (req = request, res = response) => {
   }
 };
 
-const updateDoctor = (req = request, res = response) => {
+const updateDoctor = async (req = request, res = response) => {
+  
+  const id = req.params.id;
+  const uid = req.uid;
+
   try {
+
+    const doctorExist = await Doctor.findById(id);
+
+    if(!doctorExist){
+      return res.status(404).json({
+        ok: false,
+        message: 'Doctor não encontrado.',
+      });
+    }
+
+
+    const fieldsDoctors = {
+        ...req.body,
+        user: uid,
+    }
+
+    console.log('fieldsDoctors ', fieldsDoctors);
+
+    const updatedDoctor = await Doctor.findByIdAndUpdate(id, fieldsDoctors, {new: true});
     return res.json({
       ok: true,
-      doctor: true,
-      token,
+      doctor: updatedDoctor,
     });
+
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       ok: false,
       message: error,
@@ -65,13 +89,25 @@ const updateDoctor = (req = request, res = response) => {
   }
 };
 
-const deleteDoctor = (req = request, res = response) => {
+const deleteDoctor = async (req = request, res = response) => {
+  const id = req.params.id;
   try {
+
+    const doctorExist = await Doctor.findById(id);
+
+    if(!doctorExist){
+      return res.status(404).json({
+        ok: false,
+        message: 'Doctor não encontrado.',
+      });
+    }
+
+    await Doctor.findByIdAndDelete(id);
     return res.json({
       ok: true,
-      doctor: true,
-      token,
+      doctor: 'Doctor deletado.',
     });
+
   } catch (error) {
     return res.status(500).json({
       ok: false,

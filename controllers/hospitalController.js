@@ -55,12 +55,41 @@ const createHospital = async (req = request, res = response) => {
 };
 
 const updateHospital = async (req = request, res = response) => {
+
+  const id = req.params.id;
+  const uid = req.uid;
+
   try {
+
+    const hospitalExist = await Hospital.findById(id);
+
+    if(!hospitalExist){
+      return res.status(404).json({
+        ok: false,
+        message: 'Hospital não encontrado.',
+      });
+    }
+
+   const hospitalsExistName = await Hospital.findOne({name: req.body.name})
+
+    if( hospitalsExistName &&  hospitalsExistName.id !== id){
+      return res.status(400).json({
+        ok: false,
+        message: 'Voce não pode alterar um hospital com um nome que ja existe.',
+      });
+    }
+
+    const fieldsHospitals = {
+        ...req.body,
+        user: uid,
+    }
+
+    const updatedHospital = await Hospital.findByIdAndUpdate(id, fieldsHospitals, {new: true});
     return res.json({
       ok: true,
-      hospital: true,
-      token,
+      hospital: updatedHospital,
     });
+
   } catch (error) {
     return res.status(500).json({
       ok: false,
@@ -70,12 +99,24 @@ const updateHospital = async (req = request, res = response) => {
 };
 
 const deleteHospital = async (req = request, res = response) => {
+  const id = req.params.id;
   try {
+
+    const hospitalExist = await Hospital.findById(id);
+
+    if(!hospitalExist){
+      return res.status(404).json({
+        ok: false,
+        message: 'Hospital não encontrado.',
+      });
+    }
+
+    await Hospital.findByIdAndDelete(id);
     return res.json({
       ok: true,
-      hospital: true,
-      token,
+      hospital: 'Hospital deletado.',
     });
+
   } catch (error) {
     return res.status(500).json({
       ok: false,

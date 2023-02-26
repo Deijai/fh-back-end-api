@@ -22,7 +22,17 @@ router.post(
   doctorController.createDoctor
 );
 
-router.put("/update/:id", validateToken, doctorController.updateDoctor);
+router.put(
+  "/update/:id",
+  [
+    validateToken,
+    check("name", "Name é obrigatorio").not().isEmpty(),
+    check("hospitals", "Hospital é obrigatorio").not().isEmpty(),
+    check("hospitals.*._id", "O Id do hospital tem que ser válido").isMongoId(),
+    validateFields,
+  ],
+  doctorController.updateDoctor
+);
 router.delete("/delete/:id", validateToken, doctorController.deleteDoctor);
 
 module.exports = router;

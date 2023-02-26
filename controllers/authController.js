@@ -1,8 +1,8 @@
 const { response, request } = require("express");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
-const { generateJWT } = require('../helpers/jwt');
-const { googleVerify } = require('../helpers/googleVerify');
+const { generateJWT } = require("../helpers/jwt");
+const { googleVerify } = require("../helpers/googleVerify");
 
 const login = async (req = request, res = response) => {
   const { email, password } = req.body;
@@ -33,14 +33,13 @@ const login = async (req = request, res = response) => {
     }
 
     //gerar token JWT
-   const token = await generateJWT(userExist._id);
-   console.log('token: ', token);
-
+    const token = await generateJWT(userExist._id);
+    console.log("token: ", token);
 
     return res.json({
       ok: true,
       user: userExist,
-      token
+      token,
     });
   } catch (error) {
     return res.status(500).json({
@@ -51,51 +50,67 @@ const login = async (req = request, res = response) => {
 };
 
 const google = async (req = request, res = response) => {
-    try {
+  try {
+    const { email, name, picture } = await googleVerify(req.body.token);
+    const userExist = await User.findOne({
+      email,
+    });
 
-      const { email, name, picture } = await googleVerify(req.body.token);
-      const userExist = await User.findOne({
+    let user;
+
+    if (!userExist) {
+      user = new User({
+        name,
         email,
+        password: "@@@",
+        image: picture,
+        google: true,
       });
-
-      let user;
-
-      if(!userExist){
-        user = new User({
-          name,
-          email,
-          password: '@@@',
-          image: picture,
-          google: true,
-
-        })
-      } else {
-        user = userExist;
-        user.google = true;
-      }
-
-      //salvar usuario
-      await user.save();
-
-      console.log(user);
-
-      //gerar token
-      const token = await generateJWT(user._id);
-
-      return res.json({
-        ok: true,
-        user,
-        token
-      });
-    } catch (error) {
-      return res.status(500).json({
-        ok: false,
-        message: error,
-      });
+    } else {
+      user = userExist;
+      user.google = true;
     }
-}
+
+    //salvar usuario
+    await user.save();
+
+    console.log(user);
+
+    //gerar token
+    const token = await generateJWT(user._id);
+
+    return res.json({
+      ok: true,
+      user,
+      token,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: error,
+    });
+  }
+};
+
+const renewToken = async (req = request, res = response) => {
+  const uid = req.uid;
+  try {
+    //gerar token
+    const token = await generateJWT(uid);
+    res.json({
+      ok: true,
+      token
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: error,
+    });
+  }
+};
 
 module.exports = {
   login,
-  google
+  google,
+  renewToken,
 };
