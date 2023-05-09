@@ -3,6 +3,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const { generateJWT } = require("../helpers/jwt");
 const { googleVerify } = require("../helpers/googleVerify");
+const jwt = require('jsonwebtoken');
 
 const login = async (req = request, res = response) => {
   const { email, password } = req.body;
@@ -97,9 +98,18 @@ const renewToken = async (req = request, res = response) => {
   try {
     //gerar token
     const token = await generateJWT(uid);
+
+    const userId = jwt.decode(token, process.env.JWT_SECRET);
+    console.log('userId', userId.uid);
+
+    const user = await User.findById({_id: userId.uid});
+    console.log('user', user);
+
+
     res.json({
       ok: true,
-      token
+      token,
+      user
     });
   } catch (error) {
     return res.status(500).json({

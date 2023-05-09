@@ -11,6 +11,7 @@ const authRoutes = require('./routes/authRouter');
 const userRoutes = require('./routes/userRouter');
 const hospitalRoutes = require('./routes/hospitalRouter');
 const doctorRoutes = require('./routes/doctorRouter');
+const clientRoutes = require('./routes/clientRouter');
 
 //import rota all
 const allRoutes = require('./routes/allrouter');
@@ -37,6 +38,7 @@ app.use( express.static('public') );
 
 // Rotas
 app.use('/api/users', userRoutes);
+app.use('/api/clients', clientRoutes);
 app.use('/api/hospitals', hospitalRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/auth/login', authRoutes);

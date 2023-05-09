@@ -8,11 +8,12 @@ const userController = require("../controllers/userController");
 
 const router = Router();
 
-router.get("/", validateToken, userController.getUsers);
+router.get("/", //validateToken, 
+userController.getUsers);
 router.post(
   "/new",
   [
-    validateToken,
+    //validateToken,
     check("name", "Name é obrigatorio").not().isEmpty(),
     check("password", "Password é obrigatorio").not().isEmpty(),
     check("email", "E-mail é obrigatorio").isEmail(),
@@ -25,7 +26,6 @@ router.put(
   [
     validateToken,
     check("name", "Name é obrigatorio").not().isEmpty(),
-    check("role", "Role é obrigatorio").not().isEmpty(),
     validateFields,
   ],
   userController.updateUser

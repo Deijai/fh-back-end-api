@@ -2,8 +2,7 @@ const { response, request } = require("express");
 const { v4: uuidv4 } = require("uuid");
 const { updateImage } = require("../helpers/updateImage");
 const path = require("path");
-const fs = require('fs');
-
+const fs = require("fs");
 
 const upload = async (req = request, res = response) => {
   const collection = req.params.collection || "";
@@ -54,19 +53,24 @@ const upload = async (req = request, res = response) => {
           ok: false,
           message: `${err}`,
         });
+      } else {
+        //atualizar base de dados
+        updateImage(collection, id, newFileName)
+          .then((response) => {
+            return res.json({
+              ok: true,
+              file: newFileName,
+            });
+          })
+          .catch((err) => {
+            return res.json({
+              ok: false,
+              error: err,
+            });
+          });
       }
-
-      //atualizar base de dados
-     const resultUpdateImage = updateImage(collection, id, newFileName);
-      console.log("resultUpdateImage: ", resultUpdateImage);
-
-      return res.json({
-        ok: true,
-        file: newFileName,
-      });
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       ok: false,
       message: error,
@@ -79,15 +83,13 @@ const getImage = async (req = request, res = response) => {
   const image = req.params.image || "";
 
   try {
-
     const pathImage = path.join(__dirname, `../uploads/${collection}/${image}`);
-    const pathImageDefault = path.join(__dirname, '../uploads/no-img.jpg');
+    const pathImageDefault = path.join(__dirname, "../uploads/no-img.jpg");
 
-    if(!fs.existsSync(pathImage)){
-      return res.sendFile( pathImageDefault );
+    if (!fs.existsSync(pathImage)) {
+      return res.sendFile(pathImageDefault);
     }
-    return res.sendFile( pathImage );
-    
+    return res.sendFile(pathImage);
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -95,9 +97,9 @@ const getImage = async (req = request, res = response) => {
       message: error,
     });
   }
-}
+};
 
 module.exports = {
   upload,
-  getImage
+  getImage,
 };
